@@ -1,0 +1,67 @@
+version: '3.1'
+
+services:
+
+    master:
+        image: mysql:5.7
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: 1234567890
+        container_name: lb_master
+        volumes:
+            - ./master/mysqlconf:/etc/mysql/conf.d
+            - ./master/sql-scripts/:/docker-entrypoint-initdb.d/
+        ports:
+            - 5000:3306
+
+    slave1:
+        image: mysql:5.7
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: 1234567890
+        container_name: lb_slave1
+        volumes:
+            - ./slave/mysqlconf1:/etc/mysql/conf.d
+            - ./slave/sql-scripts/:/docker-entrypoint-initdb.d/
+        ports:
+            - 5001:3306
+
+    slave2:
+        image: mysql:5.7
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: 1234567890
+        container_name: lb_slave2
+        volumes:
+            - ./slave/mysqlconf2:/etc/mysql/conf.d
+            - ./slave/sql-scripts/:/docker-entrypoint-initdb.d/
+        ports:
+            - 5002:3306
+
+    slave3:
+        image: mysql:5.7
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: 1234567890
+        container_name: lb_slave3
+        volumes:
+            - ./slave/mysqlconf3:/etc/mysql/conf.d
+            - ./slave/sql-scripts/:/docker-entrypoint-initdb.d/
+        ports:
+            - 5003:3306
+
+    haproxy:
+        image: haproxy:2.3
+        restart: always
+        container_name: lb_haproxy
+        depends_on: 
+            - master
+            - slave1
+            - slave2
+            - slave3
+        volumes:
+            - ./haproxy/config/:/usr/local/etc/haproxy/
+        ports: 
+            - 5010:3306
+            - 5011:3307
+            - 8081:8080
